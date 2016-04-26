@@ -1,0 +1,21 @@
+<!-- contact -->
+	<div class="contact">
+		<div class="container">
+			<div class="col-md-12 contact-left wow fadeInRight" data-wow-duration="1000ms" data-wow-delay="300ms" ng-if="!thanksName">
+				<h4 class="animated fadeInLeftBig" data-wow-duration="1000ms" data-wow-delay="300ms">Contacta conmigo</h4>
+				<form>
+					<input type="text" placeholder="Nombre" ng-model="message.name" required>
+					<input type="email" placeholder="Email" ng-model="message.email" required>
+					<textarea type="text" placeholder="Mensaje..." ng-model="message.text" required></textarea>
+					<input type="submit" ng-click="sendMessage(message)" value="Enviar mensaje" >
+					<input type="reset" value="Borrar formulario" >
+
+				</form>
+			</div>
+      <div class="jumbotron" ng-if="thanksName">
+        <h2>{{thanksName}}, gracias por tu mensaje, trataré de responderte lo antes posible.</h2>
+      </div>
+			<div class="clearfix"> </div>
+		</div>
+	</div>
+<!-- //contact -->
