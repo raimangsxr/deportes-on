@@ -11,8 +11,8 @@ angular.module('deportesOnApp')
   .controller('RootCtrl', function ($rootScope) {
     $rootScope.config = {
       protocol: 'http',
-      host: '192.168.1.113',
-      port: 3000
+      host: 'endirecto.chickenkiller.com',
+      port: 80
     }
     $rootScope.setNavActive = function(idNewActive){
       var navOldActive = angular.element(document.querySelector('.active'));
