@@ -6,7 +6,7 @@ var Stream = require('../models/stream.js');
 router.get('/', function(req, res) {
     Stream.find({}, function(err, streams){
         if(!err){
-            console.log('API: Listing all streams success');
+            //console.log(new Date().toISOString()+' - API: Listing all streams success');
             var jsonStreams = {};
             streams.forEach(function(stream){
                 jsonStreams[stream._id] = stream;
@@ -14,7 +14,7 @@ router.get('/', function(req, res) {
             return res.status(200).send(jsonStreams);
         }
         else{
-            console.log('API: Listing all streams failed. Caused by: '+err.message);
+            console.log(new Date().toISOString()+' - API: Listing all streams failed. Caused by: '+err.message);
             return res.status(500).send(err);
         }
     });
@@ -35,11 +35,11 @@ router.post('/', function(req, res){
     });
     newStream.save(function(err){
         if(!err){
-            console.log('API: Created stream success: "'+newStream._id+'"');
+            console.log(new Date().toISOString()+' - API: Created stream success: "'+newStream._id+'"');
             return res.status(200).send(newStream);
         }
         else{
-            console.log('API: Created stream failed: "'+newStream._id+'". Caused by: '+err.message);
+            console.log(new Date().toISOString()+' - API: Created stream failed: "'+newStream._id+'". Caused by: '+err.message);
             return res.status(500).send(err);
         }
     });
@@ -62,11 +62,11 @@ router.put('/', function(req, res){
         }
     }, function (err) {
         if (!err) {
-            console.log('API: Updated stream success: "' + req.body._id + '"');
+            console.log(new Date().toISOString()+' - API: Updated stream success: "' + req.body._id + '"');
             return res.status(200).send('Stream Updated');
         }
         else {
-            console.log('API: Updated stream failed: "' + req.body._id + '". Caused by: ' + err.message);
+            console.log(new Date().toISOString()+' - API: Updated stream failed: "' + req.body._id + '". Caused by: ' + err.message);
             return res.status(500).send(err);
         }
     });
@@ -78,12 +78,12 @@ router.get('/:id', function(req, res) {
     var id = req.params.id.toLowerCase();
     Stream.findOne({_id: id}, function(err, stream){
         if(!err){
-            console.log('API: Get stream info success: '+id);
+            console.log(new Date().toISOString()+' - API: Get stream info success: '+id);
             if(!stream) stream = {};
             return res.status(200).send(stream);
         }
         else{
-            console.log('API: Get stream info failed (id:'+id+'). Caused by: '+err.message);
+            console.log(new Date().toISOString()+' - API: Get stream info failed (id:'+id+'). Caused by: '+err.message);
             return res.status(500).send(err);
         }
     });

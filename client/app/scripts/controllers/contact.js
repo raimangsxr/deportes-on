@@ -8,9 +8,9 @@
  * Controller of the deportesOnApp
  */
 angular.module('deportesOnApp')
-  .controller('ContactCtrl', function ($scope, $http) {
+  .controller('ContactCtrl', function ($rootScope, $scope, $http) {
     $scope.sendMessage = function(message){
-      $http.post('http://localhost:3000/api/messages', message).then(function(response){
+      $http.post($rootScope.config.protocol+'://'+$rootScope.config.host+':'+$rootScope.config.port+'/api/messages', message).then(function(response){
         $scope.thanksName = response.data.name;
       }, function(error){
         console.error(error);

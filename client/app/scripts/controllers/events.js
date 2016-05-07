@@ -8,10 +8,11 @@
  * Controller of the deportesOnApp
  */
 angular.module('deportesOnApp')
-  .controller('EventsCtrl', function ($scope, $http, $location, NgTableParams, EventProperties) {
+  .controller('EventsCtrl', function ($rootScope, $scope, $http, $location, $window, NgTableParams, EventProperties) {
 
-    $http.get('http://localhost:3000/api/events').then(
+    $http.get($rootScope.config.protocol+'://'+$rootScope.config.host+':'+$rootScope.config.port+'/api/events').then(
       function(response){ //sucess
+        delete $scope.error;
         $scope.events = new NgTableParams(
           { //initial Params
             count: 10 // initial page size
@@ -26,7 +27,8 @@ angular.module('deportesOnApp')
       },
       function(err){ //error
         console.log(err.statusCode+': Error getting events: '+err.message);
-    })
+        $scope.error = "Error recuperando eventos desde el servidor";
+    });
 
     $scope.playChannel = function(title, channel) {
       EventProperties.setTitle(title);
@@ -34,4 +36,15 @@ angular.module('deportesOnApp')
       $location.path('/player');
     };
 
+    $scope.openAppChannel = function(stream){
+      $http.get($rootScope.config.protocol+'://'+$rootScope.config.host+':'+$rootScope.config.port+'/api/streams/'+stream).then(
+        function(response){ //sucess
+          delete $scope.error;
+          $window.location.href = response.data.link;
+        },
+        function(err){ //error
+          console.log(err.statusCode+': Error getting events: '+err.message);
+          $scope.error = 'Error recuperando el canal '+stream+' desde el servidor';
+      });
+    }
   });

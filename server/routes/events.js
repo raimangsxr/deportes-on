@@ -7,14 +7,14 @@ var Event = require('../models/event.js');
 router.get('/', function(req, res) {
     var firstDate = new Date();
     firstDate.setHours(firstDate.getHours() -2);
-    console.log("Fecha de inicio de eventos: "+firstDate);
+    //console.log(new Date().toISOString()+' - Fecha de inicio de eventos: '+firstDate);
     Event.find({date:{$gte:firstDate}}, function(err, events){
         if(!err){
-            console.log('Listing all events success');
+            console.log(new Date().toISOString()+' - API: Listing all events success');
             return res.status(200).send(events);
         }
         else{
-            console.log('Listing all events failed. Caused by: '+err.message);
+            console.log(new Date().toISOString()+' - API: Listing all events failed. Caused by: '+err.message);
             return res.status(500).send(err);
         }
     });
@@ -35,15 +35,15 @@ router.post('/', function(req, res){
 
     event.save(function(err){
         if(!err){
-            console.log('Created event success: "'+event.title+'"');
+            console.log(new Date().toISOString()+' - API: Created event success: "'+event.title+'"');
             return res.status(200).send(event);
         }
         else{
             if(err.code === 11000) { //duplicate key error (title is unique)
-                console.log('Event already added: "'+event.title+'". Nothing to do');
+                console.log(new Date().toISOString()+' - API: Event already added: "'+event.title+'". Nothing to do');
                 return res.status(202).send(event);
             }
-            console.log('Create event failed: "'+event.title+'". Caused by: '+err.message);
+            console.log(new Date().toISOString()+' - API: Create event failed: "'+event.title+'". Caused by: '+err.message);
             return res.status(500).send(err);
         }
     });
@@ -65,11 +65,11 @@ router.put('/', function(req, res){
         }
     }, function(err){
         if(!err){
-            console.log('Updated event success: "'+req.body._id+'"');
+            console.log(new Date().toISOString()+' - API: Updated event success: "'+req.body._id+'"');
             return res.status(200).send('Event Updated');
         }
         else{
-            console.log('Updated event failed: "'+req.body.title+'". Caused by: '+err.message);
+            console.log(new Date().toISOString()+' - API: Updated event failed: "'+req.body.title+'". Caused by: '+err.message);
             return res.status(500).send(err);
         }
     });
@@ -81,11 +81,11 @@ router.get('/:id', function(req, res) {
     var id = req.params.id;
     Event.findOne({_id: id}, function(err, event){
         if(!err){
-            console.log('Get event info success: '+event.title);
+            console.log(new Date().toISOString()+' - API: Get event info success: '+event.title);
             return res.status(200).send(event);
         }
         else{
-            console.log('Get event info failed (id:'+id+'). Caused by: '+err.message);
+            console.log(new Date().toISOString()+' - API: Get event info failed (id:'+id+'). Caused by: '+err.message);
             return res.status(500).send(err);
         }
     });

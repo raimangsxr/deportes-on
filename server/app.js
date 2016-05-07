@@ -18,7 +18,7 @@ app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+//app.use(logger('combined'));
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(cookieParser());
@@ -85,6 +85,7 @@ setInterval(function () {
 
 
 // REFRESH CHANNELS
+
 arenavision.RefreshChannels();
 setInterval(function () {
   arenavision.RefreshChannels();

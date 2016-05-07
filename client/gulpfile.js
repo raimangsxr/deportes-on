@@ -11,20 +11,20 @@ var runSequence = require('run-sequence');
 
 var yeoman = {
   app: require('./bower.json').appPath || 'app',
-  dist: 'dist'
+  dist: '../server/dist'
 };
 
 var paths = {
-  scripts: [yeoman.app + '/scripts/**/*.js'],
-  styles: [yeoman.app + '/styles/**/*.scss'],
+  scripts: [yeoman.app + '/scripts/**/*.js', yeoman.app + '/js/**/*.js'],
+  styles: [yeoman.app + '/styles/**/*.scss', yeoman.app + '/styles/**/*.css'],
   test: ['test/spec/**/*.js'],
   testRequire: [
-    yeoman.app + '/bower_components/angular/angular.js',
-    yeoman.app + '/bower_components/angular-mocks/angular-mocks.js',
-    yeoman.app + '/bower_components/angular-resource/angular-resource.js',
-    yeoman.app + '/bower_components/angular-cookies/angular-cookies.js',
-    yeoman.app + '/bower_components/angular-sanitize/angular-sanitize.js',
-    yeoman.app + '/bower_components/angular-route/angular-route.js',
+    'bower_components/angular/angular.js',
+    'bower_components/angular-mocks/angular-mocks.js',
+    'bower_components/angular-resource/angular-resource.js',
+    'bower_components/angular-cookies/angular-cookies.js',
+    'bower_components/angular-sanitize/angular-sanitize.js',
+    'bower_components/angular-route/angular-route.js',
     'test/mock/**/*.js',
     'test/spec/**/*.js'
   ],
@@ -140,7 +140,7 @@ gulp.task('test', ['start:server:test'], function () {
 gulp.task('bower', function () {
   return gulp.src(paths.views.main)
     .pipe(wiredep({
-      directory: yeoman.app + '/bower_components',
+      directory: 'bower_components',
       ignorePath: '..'
     }))
   .pipe(gulp.dest(yeoman.app));

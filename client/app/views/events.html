@@ -1,4 +1,7 @@
 <div class="row marketing">
+  <div class="alert alert-info text-center">
+    <p><b>Se recomienda</b> utilizar los canales denominados como App (que abrirá el canal en un reproductor externo)</p>
+  </div>
   <table ng-table="events" class="table" show-filter="true">
     <tr ng-repeat="event in $data" class="animate">
       <td title="'Titulo'" filter="{ title: 'text'}" sortable="'title'">
@@ -7,11 +10,17 @@
         {{event.date |date:"dd/MM/yyyy 'a las' HH:mm'h'"}}</td>
       <td title="'Categoria'" filter="{ category: 'text'}" sortable="'category'">
         {{event.category |uppercase}}</td>
-      <td title="'Canales'">
+      <td title="'Canales'" class="">
         <div class="text-nowrap text-center">
-          <button class="btn btn-primary btn-stream" ng-repeat="stream in event.streams" ng-click="playChannel(event.title, stream)">{{stream}}</button>
+          <div class="btn-group-vertical" ng-repeat="stream in event.streams" style="margin-right: 2px;">
+            <button class="btn btn-primary btn-stream" ng-click="playChannel(event.title, stream)">{{stream}}</button>
+            <button class="btn btn-primary btn-stream" ng-click="openAppChannel(stream)">App</button>
+          </div>
         </div>
       </td>
     </tr>
   </table>
+  <div class="alert alert-danger" ng-if="error">
+    <p>{{error}}</p>
+  </div>
 </div>

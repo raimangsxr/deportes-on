@@ -8,10 +8,10 @@
  * Controller of the deportesOnApp
  */
 angular.module('deportesOnApp')
-  .controller('PlayerCtrl', function ($scope, $http, EventProperties) {
+  .controller('PlayerCtrl', function ($rootScope, $scope, $http, EventProperties) {
     $scope.channel = EventProperties.getChannel();
     $scope.title = EventProperties.getTitle();
-    $http.get('http://localhost:3000/api/streams/'+$scope.channel).then(
+    $http.get($rootScope.config.protocol+'://'+$rootScope.config.host+':'+$rootScope.config.port+'/api/streams/'+$scope.channel).then(
       function(response){ //sucess
         var stream = response.data;
         var contentId = stream.linkId;

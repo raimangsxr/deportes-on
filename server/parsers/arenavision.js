@@ -1,5 +1,4 @@
 var request = require('request');
-//var request = require('sync-request');
 var cheerio = require('cheerio');
 
 
@@ -53,7 +52,7 @@ function getArenavisionSchedule(){
                                 });
                             }
                         } catch(error){
-                            console.error('Parseando Arenavision: '+error);
+                            console.error(new Date().toISOString()+' - Parseando Arenavision: '+error);
                         }
                     }
                     //save events to database
@@ -71,9 +70,7 @@ function getArenavisionSchedule(){
                             }
                         }, function(error, response, body){
                             if(error) {
-                                console.log(error);
-                            } else {
-                                console.log(response.statusCode);
+                                console.log(new Date().toISOString()+' - events.forEach: '+error);
                             }
                         });
                     });
@@ -116,10 +113,10 @@ function refreshChannel(channelNumber){
                     },
                     function(error, response, body){
                         if(error) {
-                            console.log('Arenavision: ERROR cant getting '+channel+' stream info: '+error);
+                            console.log(new Date().toISOString()+' - Arenavision: ERROR cant getting '+channel+' stream info: '+error);
                         } else {
                             if(body === "{}"){ //Cant find the stream
-                                console.log('Arenavision: WARN cant find stream '+channel);
+                                //console.log('Arenavision: WARN cant find stream '+channel);
                                 //create new stream to database
                                 request({
                                     url: 'http://localhost:3000/api/streams', //URL to hit
@@ -134,9 +131,9 @@ function refreshChannel(channelNumber){
                                     }
                                 }, function(error, response, body){
                                     if(error) {
-                                        console.log('Arenavision: ERROR creating new stream '+channel+': '+error);
+                                        console.log(new Date().toISOString()+' - Arenavision: ERROR creating new stream '+channel+': '+error);
                                     } else {
-                                        console.log('Arenavision: created new stream '+channel+': '+response.statusCode);
+                                        //console.log(new Date().toISOString()+' - Arenavision: created new stream '+channel+': '+response.statusCode);
                                     }
                                 });
                             }
@@ -156,9 +153,9 @@ function refreshChannel(channelNumber){
                                     }
                                 }, function(error, response, body){
                                     if(error) {
-                                        console.log('Arenavision: ERROR updating '+channel+' stream: '+error);
+                                        console.log(new Date().toISOString()+' - Arenavision: ERROR updating '+channel+' stream: '+error);
                                     } else {
-                                        console.log('Arenavision: updated '+channel+' stream: '+response.statusCode);
+                                        //console.log(new Date().toISOString()+' - Arenavision: updated '+channel+' stream: '+response.statusCode);
                                     }
                                 });
                             }
