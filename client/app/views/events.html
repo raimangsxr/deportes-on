@@ -1,5 +1,9 @@
 <div class="row marketing">
-  <div class="alert alert-info text-center">
+  <div class="jumbotron" ng-if="!aceEngineOk">
+    <p>IMPORTANTE<br/>Si es la primera vez que nos visitas, pásate por esta sección para configurar correctamente tu equipo.</p>
+    <a href="#/tutorial" class="btn btn-lg btn-primary" ng-click="setNavActive('tutorial')">Ir al tutorial de uso</a>
+  </div>
+  <div class="alert alert-danger text-center">
     <p><b>Se recomienda</b> utilizar los canales denominados como App (que abrirá el canal en un reproductor externo)</p>
   </div>
   <table ng-table="events" class="table" show-filter="true">
@@ -20,7 +24,10 @@
       </td>
     </tr>
   </table>
-  <div class="alert alert-danger" ng-if="error">
+  <div id="loader" class="loader text-center">
+    <img src="/images/loader.gif"/>
+  </div>
+  <div class="alert alert-danger text-center" ng-if="error">
     <p>{{error}}</p>
   </div>
 </div>
