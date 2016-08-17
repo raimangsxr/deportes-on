@@ -1,8 +1,11 @@
 var request = require('request');
 var cheerio = require('cheerio');
+var mongoose = require('mongoose');
+var q = require('q');
 
 
 function getArenavisionSchedule(){
+    console.log(new Date().toISOString()+' - Arenavision: Getting Arenavision events from web!');
     request('http://arenavision.in/agenda', function (error, response, html) {
         if (!error && response.statusCode == 200) {
 
@@ -10,84 +13,110 @@ function getArenavisionSchedule(){
             var events = [];
 
             var acestreamChannels = [];
-            for(var i = 1; i<=20; i++)
+            for(var i = 1; i<=30; i++)
                 acestreamChannels.push(""+i);
 
-            $('p').filter(function(){
+            $('table').filter(function(){
                 if (this.children.length > 10) {
-                    for (var i = 0; i < this.children.length; i++) {
+                    for (var i = 1; i < this.children.length-2; i++) {
                         try{
-                            var data = "", dataSplitted = "", date = "", category = "", categoryLength = 0, title = "", channels = [];
-                            data = this.children[i].data;
+                            var data = "", date = "", time = "", category = "", title = "", competition = "", channels = [];
+                            data = this.children[i].children;
                             if (data) {
-                                data = data.replace('\n', '');
 
-                                //Fecha
-                                date = data.match(/^\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}/g)[0];
-                                date = new Date("20" + date.substr(6, 2), date.substr(3, 2) - 1, date.substr(0, 2), date.substr(9, 2), date.substr(12, 2));
+                                date = data[0].children[0].data;
+                                time = data[2].children[0].data;
+                                category = data[4].children[0].data;
+                                competition = data[6].children[0].data;
+                                data[8].children.forEach(function(part){
+                                    if (typeof part.data === 'undefined')
+                                        return;
+                                    if (title === "")
+                                        title = title.concat(part.data.replace('\n\t\t', ''));
+                                    else
+                                        title = title.concat(' ', part.data.replace('\n\t\t', ''));
+                                });
 
-                                //Category
-                                category = data.match(/CET \w+\s*[\w\s]*:/g)[0];
-                                categoryLength = category.length - 5;
-                                category = category.substr(4, categoryLength);
+                                data[10].children.forEach(function(channel){
+                                    if ((typeof channel.data === 'undefined') || channel.data == " ")
+                                        return;
+                                    var cleanedChannel = channel.data.replace('\n\t\t', '');
+                                    var chNumbers = cleanedChannel.split(' ')[0].split('-');
+                                    var chLang = cleanedChannel.split(' ')[1].replace('[','').replace(']','');
+                                    chNumbers.forEach(function(channel){
+                                        if(acestreamChannels.indexOf(channel) >= 0)
+                                            channels.push({
+                                                name: channel,
+                                                language: chLang,
+                                                id: new mongoose.Types.ObjectId
+                                            });
+                                    });
+                                });
 
-                                //Title
-                                dataSplitted = data.split(':')[1];
-                                dataSplitted = data.split(':')[2].split('/AV');
-                                title = dataSplitted[0].trim();
-
-                                //Channels
-                                for (var j = 1; j < dataSplitted.length; j++) {
-                                    if ((acestreamChannels.indexOf(dataSplitted[j]) >= 0)
-                                        && (channels.indexOf(dataSplitted[j]) == -1))
-
-                                        channels.push('AV' + dataSplitted[j]);
-                                }
-
+                                date = new Date(date.substr(6, 4), date.substr(3, 2) - 1, date.substr(0, 2), time.substr(0, 2), time.substr(3, 2));
                                 events.push({
                                     "title": title,
+                                    "competition": competition,
                                     "category": category,
                                     "date": date,
-                                    "channels": channels
+                                    "streams": channels,
+                                    "userPosts": []
                                 });
+
                             }
                         } catch(error){
                             console.error(new Date().toISOString()+' - Parseando Arenavision: '+error);
                         }
                     }
-                    //save events to database
-                    events.forEach(function (event){
-                        request({
-                            url: 'http://localhost:3000/api/events', //URL to hit
-                            //qs: {from: 'blog example', time: +new Date()}, //Query string data
-                            method: 'POST',
-                            json: {
-                                "title": event.title,
-                                "category": event.category,
-                                "date": event.date,
-                                "streams": event.channels,
-                                "userPosts": []
-                            }
-                        }, function(error, response, body){
-                            if(error) {
-                                console.log(new Date().toISOString()+' - events.forEach: '+error);
-                            }
-                        });
-                    });
+
+                    promises = [];
+                    for(var i = 1; i<=30; i++){
+                        promises.push(refreshChannel(i));
+                    }
+
+                    q.all(promises)
+                        .then(function(channels){
+                            //sorting channel data
+                            channels.sort(function(a,b) {return (a.channel > b.channel) ? 1 : ((b.channel > a.channel) ? -1 : 0);} );
+                            //save events to database
+                            events.forEach(function (event){
+                                event.streams = event.streams.map(function(stream){
+                                    channelInfo = channels[stream.name-1];
+                                    return {
+                                        name: stream.name,
+                                        language: stream.language,
+                                        link: channelInfo.link,
+                                        linkId: channelInfo.linkId,
+                                        type: channelInfo.type,
+                                        rating: channelInfo.rating,
+                                    };
+                                });
+                                request({
+                                    url: 'http://localhost:3000/api/events', //URL to hit
+                                    method: 'POST',
+                                    json: event
+                                }, function(error, response, body){
+                                    if(error) {
+                                        console.log(new Date().toISOString()+' - events.forEach: '+error);
+                                    }
+                                });
+                            });
+                        }).catch(function(error){
+                            console.error(new Date().toISOString()+' - q.all error: '+error);
+                        }
+                    );
+
                 }
             });
         }
     });
 };
 
-function refreshArenavisionChannels(){
-    for(var i = 1; i<=20; i++){
-        refreshChannel(i);
-    }
-}
+
 
 
 function refreshChannel(channelNumber){
+    var deferred = q.defer();
     var streams = [];
     var channel = "av"+channelNumber;
     request('http://arenavision.in/'+channel, function (error, response, html) {
@@ -106,69 +135,23 @@ function refreshChannel(channelNumber){
                 var link = data.attr('href');
                 var linkId = link.split('/')[2];
 
-                //get stream info from database
-                request({
-                    url: 'http://localhost:3000/api/streams/'+channel, //URL to hit
-                    method: 'GET'
-                    },
-                    function(error, response, body){
-                        if(error) {
-                            console.log(new Date().toISOString()+' - Arenavision: ERROR cant getting '+channel+' stream info: '+error);
-                        } else {
-                            if(body === "{}"){ //Cant find the stream
-                                //console.log('Arenavision: WARN cant find stream '+channel);
-                                //create new stream to database
-                                request({
-                                    url: 'http://localhost:3000/api/streams', //URL to hit
-                                    method: 'POST',
-                                    json: {
-                                        "_id": channel,
-                                        "linkId": linkId,
-                                        "link": link,
-                                        "type": "ACESTREAM",
-                                        "language": "Español",
-                                        "rating": "5"
-                                    }
-                                }, function(error, response, body){
-                                    if(error) {
-                                        console.log(new Date().toISOString()+' - Arenavision: ERROR creating new stream '+channel+': '+error);
-                                    } else {
-                                        //console.log(new Date().toISOString()+' - Arenavision: created new stream '+channel+': '+response.statusCode);
-                                    }
-                                });
-                            }
-                            else{
-                                //console.log('Arenavision: GET '+channel+' stream info: '+response.statusCode);
-                                //update stream to database
-                                request({
-                                    url: 'http://localhost:3000/api/streams', //URL to hit
-                                    method: 'PUT',
-                                    json: {
-                                        "_id": channel,
-                                        "linkId": linkId,
-                                        "link": link,
-                                        "type": "ACESTREAM",
-                                        "language": "Español",
-                                        "rating": "5"
-                                    }
-                                }, function(error, response, body){
-                                    if(error) {
-                                        console.log(new Date().toISOString()+' - Arenavision: ERROR updating '+channel+' stream: '+error);
-                                    } else {
-                                        //console.log(new Date().toISOString()+' - Arenavision: updated '+channel+' stream: '+response.statusCode);
-                                    }
-                                });
-                            }
-                        }
-                    });
+                deferred.resolve({
+                    channel: channelNumber,
+                    name: channel,
+                    linkId: linkId,
+                    link: link,
+                    type: "ACESTREAM",
+                    rating: "5",
+                    status: 'error'
+                });
             });
         }
     });
+    return deferred.promise;
 };
 
 
 
 module.exports = {
-    GetSchedule : getArenavisionSchedule,
-    RefreshChannels: refreshArenavisionChannels
+    GetSchedule : getArenavisionSchedule
 };

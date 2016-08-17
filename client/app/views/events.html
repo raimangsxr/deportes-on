@@ -3,11 +3,14 @@
     <p>IMPORTANTE<br/>Si es la primera vez que nos visitas, pásate por esta sección para configurar correctamente tu equipo.</p>
     <a href="#/tutorial" class="btn btn-lg btn-primary" ng-click="setNavActive('tutorial')">Ir al tutorial de uso</a>
   </div>
-  <div class="alert alert-danger text-center">
+  <!--<div class="alert alert-danger text-center">
     <p><b>Se recomienda</b> utilizar los canales denominados como App (que abrirá el canal en un reproductor externo)</p>
   </div>
+  -->
   <table ng-table="events" class="table" show-filter="true">
     <tr ng-repeat="event in $data" class="animate">
+      <td title="'Competicion'" filter="{ competition: 'text'}" sortable="'competition'">
+        <p title="{{event.competition}}">{{event.competition}}</p></td>
       <td title="'Titulo'" filter="{ title: 'text'}" sortable="'title'">
         <p title="{{event.title}}">{{event.title}}</p></td>
       <td title="'Fecha'" filter="{ date: 'text'}" sortable="'date'">
@@ -16,9 +19,21 @@
         {{event.category |uppercase}}</td>
       <td title="'Canales'" class="">
         <div class="text-nowrap text-center">
-          <div class="btn-group-vertical" ng-repeat="stream in event.streams" style="margin-right: 2px;">
-            <button class="btn btn-primary btn-stream" ng-click="playChannel(event.title, stream)">{{stream}}</button>
-            <button class="btn btn-primary btn-stream" ng-click="openAppChannel(stream)">App</button>
+          <div class="btn-group" role="group" ng-repeat="stream in event.streams">
+            <button type="button" class="btn btn-primary" ng-click="openAppChannel(stream.link)">
+              {{stream.name}}<br/>
+              <div class="flag"
+                   ng-class="{'flag-es': stream.language === 'SPA',
+                              'flag-gb': stream.language === 'ENG',
+                              'flag-it': stream.language === 'ITA',
+                              'flag-fr': stream.language === 'FRE',
+                              'flag-de': stream.language === 'GER',
+                              'flag-tr': stream.language === 'TUR',
+                              'flag-rs': stream.language === 'SRB',
+                              'flag-pt': stream.language === 'POR',
+                              'flag-ru': stream.language === 'RUS',
+                              'flag-nl': stream.language === 'DUT',}"></div>
+            </button>
           </div>
         </div>
       </td>

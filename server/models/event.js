@@ -1,11 +1,9 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var Stream = require('./stream.js');
-var UserPost = require('./userPost.js');
-
 var eventSchema = new Schema({
-    title: {type: String, required: true, unique: true},
+    title: {type: String, required: true},
+    competition: String,
     category: {type: String, required:true},
     date: {type: Date, required: true},
     streams: [],
@@ -13,6 +11,8 @@ var eventSchema = new Schema({
     dateEntered: Date,
     dateModified: {type: Date, default: Date.now()},
 });
+
+eventSchema.index({ title: 1, date: 1}, { unique: true });
 
 var Event = mongoose.model('Event', eventSchema);
 module.exports = Event;

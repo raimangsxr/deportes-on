@@ -81,12 +81,4 @@ module.exports = app;
 arenavision.GetSchedule();
 setInterval(function () {
   arenavision.GetSchedule();
-}, 86400 * 1000); //Se repite cada día
-
-
-// REFRESH CHANNELS
-
-arenavision.RefreshChannels();
-setInterval(function () {
-  arenavision.RefreshChannels();
-}, 600 * 1000); //Se repite cada 10 minutos
+}, 14400 * 1000); //Se refrescan cada 4 horas
